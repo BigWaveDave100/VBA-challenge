@@ -1,0 +1,93 @@
+Option Explicit
+
+Sub quartarly_stock_data()
+
+    'Set variables
+    Dim ws As Worksheet
+    Dim finalrow As Long
+    Dim totalsrow As Long
+    Dim ticker As String
+    Dim quartarlychange As Double
+    Dim percent_change As Double
+    Dim openingprice As Double
+    Dim closingprice As Double
+    Dim stockvolume As Double
+    Dim greatestpercentincreaseticker As String
+    Dim greatestpercentdecreaseticker As String
+    Dim greatesttotalstockvolumeticker As String
+    Dim greatestpercentincrease As Double
+    Dim greatestpercentdecrease As Double
+    Dim greatesttotalstockvolume As Double
+
+    'Loop through each worksheet
+    For Each ws In ThisWorkbook.Worksheets
+        'Find final row
+        finalrow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
+
+        'Reset variables for each worksheet
+        greatestpercentincrease = 0
+        greatestpercentdecrease = 0
+        greatesttotalstockvolume = 0
+
+        'Set column headers
+        With ws
+            .Cells(1, 9).Value = "Ticker"
+            .Cells(1, 10).Value = "Quartarly Change"
+            .Cells(1, 11).Value = "Percent Change"
+            .Cells(1, 12).Value = "Total Stock Volume"
+        End With
+
+        'Begin processing each row
+        For totalsrow = 2 To finalrow
+            ticker = ws.Cells(totalsrow, 1).Value
+            openingprice = ws.Cells(totalsrow, 3).Value
+            closingprice = ws.Cells(totalsrow, 6).Value
+            stockvolume = ws.Cells(totalsrow, 7).Value
+
+            quartarlychange = closingprice - openingprice
+            If openingprice <> 0 Then
+                percent_change = (quartarlychange / openingprice) * 100
+            Else
+                percent_change = 0
+            End If
+
+            'Populate data in respective columns
+            ws.Cells(totalsrow, 9).Value = ticker
+            ws.Cells(totalsrow, 10).Value = quartarlychange
+            ws.Cells(totalsrow, 11).Value = percent_change
+            ws.Cells(totalsrow, 12).Value = stockvolume
+
+            'Check for greatest increases, decreases, and volume
+            If percent_change > greatestpercentincrease Then
+                greatestpercentincrease = percent_change
+                greatestpercentincreaseticker = ticker
+            End If
+
+            If percent_change < greatestpercentdecrease Then
+                greatestpercentdecrease = percent_change
+                greatestpercentdecreaseticker = ticker
+            End If
+
+            If stockvolume > greatesttotalstockvolume Then
+                greatesttotalstockvolume = stockvolume
+                greatesttotalstockvolumeticker = ticker
+            End If
+        Next totalsrow
+
+        'Set column headers for greatest values
+        With ws
+            .Cells(1, 16).Value = "Ticker"
+            .Cells(1, 17).Value = "Value"
+            .Cells(2, 15).Value = "Greatest % Increase"
+            .Cells(3, 15).Value = "Greatest % Decrease"
+            .Cells(4, 15).Value = "Greatest Total Volume"
+            .Cells(2, 16).Value = greatestpercentincreaseticker
+            .Cells(3, 16).Value = greatestpercentdecreaseticker
+            .Cells(4, 16).Value = greatesttotalstockvolumeticker
+            .Cells(2, 17).Value = greatestpercentincrease
+            .Cells(3, 17).Value = greatestpercentdecrease
+            .Cells(4, 17).Value = greatesttotalstockvolume
+        End With
+    Next ws
+
+End Sub
